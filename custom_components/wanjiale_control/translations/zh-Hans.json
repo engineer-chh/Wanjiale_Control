@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "万家乐账号",
+        "description": "请输入万家乐应用账号密码（通过 machtalk 云端登录）。",
+        "data": {
+          "username": "账号",
+          "password": "密码",
+          "imei": "IMEI（可选）"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "连接失败，请检查网络或账号密码",
+      "invalid_auth": "登录失败：账号或密码错误",
+      "unknown": "未知错误"
+    },
+    "abort": {
+      "already_configured": "该账号已在 Home Assistant 中配置"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "万家乐 高级选项",
+        "description": "机型模板描述的是模板能力，与实机能力可能不一致（例如模板含零冷水点位、实机功能位未置起）。探测不到的功能可强制开启，误判的功能可强制关闭。功能覆盖按设备保存，同一账号下的多台设备互不影响，请先选择设备再勾选功能。保存后集成会自动重载。",
+        "menu_options": {
+          "account": "账号级设置",
+          "device": "按设备设置功能"
+        }
+      },
+      "account": {
+        "title": "账号级设置",
+        "description": "以下设置对整个账号生效，与具体设备无关。",
+        "data": {
+          "enable_control_rights": "启用多端操作权抢占（默认关闭）",
+          "relogin_min_interval_minutes": "两次自动重登的最小间隔（分钟）",
+          "relogin_daily_limit": "每日自动重登次数上限",
+          "rescan_devices": "重新获取设备"
+        },
+        "data_description": {
+          "enable_control_rights": "开启后，每次控制前会先用登录手机号抢占设备操作权（对应官方应用的多端互斥机制）。若你的机型不校验操作权，保持关闭即可。",
+          "relogin_min_interval_minutes": "仅在局域网与云端同时不可用连续 2 轮时才会自动重登；两次重登至少间隔该时长。调小恢复更快，但手机 App 的 HTTP 会话会被更频繁地替换（云端长连接与局域网控制不受影响）。默认 10 分钟。",
+          "relogin_daily_limit": "当天最多自动重登的次数，达到上限后推迟到次日 00:00。默认 6 次。",
+          "rescan_devices": "勾选并保存后，本次重载会重新从云端拉取设备，使新设备加入 Home Assistant。该选项不会被保存，仅本次生效。"
+        }
+      },
+      "device": {
+        "title": "选择设备",
+        "description": "选择要配置功能覆盖的设备。每台设备单独保存，互不影响。",
+        "data": {
+          "device_did": "设备"
+        },
+        "data_description": {
+          "device_did": "只列出本账号下已加入 Home Assistant 的设备。"
+        }
+      },
+      "device_detail": {
+        "title": "设置功能覆盖",
+        "description": "勾选的功能会在「{device}」上创建实体，取消勾选则不创建。只影响这一台设备，保存后集成自动重载。",
+        "data": {
+          "device_features": "已开启的功能"
+        },
+        "data_description": {
+          "device_features": "列表按当前实际生效状态预先勾选：勾选即开启，取消即关闭。未改动过的功能保持按能力表自动判定。"
+        }
+      }
+    },
+    "abort": {
+      "not_loaded": "集成尚未完成初始化，暂时无法读取设备清单。请等待集成加载完成后再进入选项。",
+      "device_gone": "所选设备已不在集成中，请返回重新选择。",
+      "no_features": "该设备所属品类暂不支持功能覆盖。"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+"""008 电热水器 · 品类插件。
+
+008 的语义与值编码留在 `features_008.py`，spec 表在 `categories/008/specs.py`，
+本文件只把两者按 `CategoryPlugin` 契约对外暴露并自注册。
+
+控制范围收敛为开关 / 温度 / 模式 / 辅助开关，故障只走云端 `fids`。
+状态点未提取成功的机型（`CKQ`/`AVX`/`DXV`/`GOX`）不产出加热/保温实体。
+"""
+from __future__ import annotations
+
+from ... import features_008 as f008
+from ...api import WanjialeElectricWaterHeater
+from ...registry import CategoryPlugin, register_plugin
+from . import specs as platform_specs
+
+# 已收录进机型表但主动判为只读的机型：命中即不认领，回落通用只读设备。
+# 与 `requires_model_entry` 互补：后者拦「根本没进机型表」，本集合拦「已进表但判高危」。
+#   原生 6：D03/D04/D05/D07/D08/TRM（点位未收录，待独立取证）
+#   存疑 6：CKQ（新旧编号混用）、TOU/TTH（页面自相矛盾）、AVX/GOX（疑似空气能）、DXV（遥控器配件）
+#   温度落 102 的 9 个：与模式点共用 dpid，静态无法判定设备侧语义
+READONLY_MODELS = frozenset({
+    "WJL_008_CKQ", "WJL_008_TOU", "WJL_008_TTH", "WJL_008_AVX", "WJL_008_GOX", "WJL_008_DXV",
+    "WJL_008_D03", "WJL_008_D04", "WJL_008_D05", "WJL_008_D07", "WJL_008_D08", "WJL_008_TRM",
+    "WJL_008_DJV", "WJL_008_GGE", "WJL_008_LKA", "WJL_008_MFU", "WJL_008_PZH",
+    "WJL_008_RBD", "WJL_008_TKJ", "WJL_008_WTI", "WJL_008_ZWD",
+})
+
+
+def build_plugin() -> CategoryPlugin:
+    """构造 008 的插件对象（由 `plugin = register_plugin(build_plugin())` 注册）。"""
+    return CategoryPlugin(
+        product=f008.PRODUCT,
+        category_cn=f008.CATEGORY,
+        device_class=WanjialeElectricWaterHeater,
+        platforms=frozenset({"water_heater", "switch", "sensor", "binary_sensor"}),
+        features=f008.FEATURES,
+        # 值是 Callable[[device], Tuple[Spec, ...]]：008 的实体名单与 dpid 都随机型变
+        specs=platform_specs.PLATFORM_SPECS,
+        capability_file="capability_008.json",
+        faults_file="faults_008.json",
+        parse_state=f008.parse_state,
+        encode_value=f008.encode_value,
+        # 008 点位全在机型表里，不做全局基线（effective_points 只含实测点位）
+        base_points=frozenset(),
+        baseline_families=frozenset(),
+        always_on_features=frozenset({"开关机"}),
+        # 故障只声明云端来源：老编号 8/9 是热水量/水温，不是故障点
+        fault_points={"cloud": "fids"},
+        # fids 里的元素就是故障表 id；0/255 是设备故障点的正常哨兵
+        fault_none=(0, 255),
+        # 未收录机型不得被认领：008 的点位全在机型表里，没表就没法控
+        requires_model_entry=True,
+        readonly_models=READONLY_MODELS,
+        # 008 的操作权是老编号 14/15、新编号 120，与 001/002 的 247/248 不同构，
+        # 暂不做操作权抢占
+        control_rights=False,
+        encoding_note=(
+            "单点直写（opt(dvid, 绝对值)），无成对复合包；"
+            "开关/模式/温度/热水量/水温/故障与辅助开关点位全部随机型变，见 capability_008.json。"
+        ),
+    )
+
+
+plugin: CategoryPlugin = register_plugin(build_plugin())

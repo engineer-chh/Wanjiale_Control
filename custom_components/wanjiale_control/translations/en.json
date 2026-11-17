@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Wanjiale Account",
+        "description": "Enter your Wanjiale app credentials (used to login to the machtalk cloud).",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "imei": "IMEI (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect, please check network and credentials",
+      "invalid_auth": "Invalid username or password",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This account is already configured in Home Assistant"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Wanjiale Advanced Options",
+        "description": "A model template describes the template capability, which may differ from the real device (e.g. the template exposes zero-cold-water points while the device never raises the feature bit). Force-enable a feature that was not detected, or force-disable a mis-detected one. Feature overrides are stored per device, so multiple devices on the same account do not affect each other; pick a device first. The integration reloads automatically after saving.",
+        "menu_options": {
+          "account": "Account settings",
+          "device": "Per-device features"
+        }
+      },
+      "account": {
+        "title": "Account settings",
+        "description": "These settings apply to the whole account, not to a single device.",
+        "data": {
+          "enable_control_rights": "Enable multi-client control-rights preemption (off by default)",
+          "relogin_min_interval_minutes": "Minimum interval between automatic re-logins (minutes)",
+          "relogin_daily_limit": "Maximum automatic re-logins per day",
+          "rescan_devices": "Re-scan devices"
+        },
+        "data_description": {
+          "enable_control_rights": "When enabled, the login phone number is used to claim the device control right before each command (mirrors the official app's multi-client exclusion). Keep it off if your model does not check control rights.",
+          "relogin_min_interval_minutes": "Automatic re-login only happens after both LAN and cloud have been unavailable for 2 consecutive rounds; two re-logins are at least this far apart. Smaller values recover faster but replace the phone app's HTTP session more often (cloud long connection and LAN control are unaffected). Default: 10 minutes.",
+          "relogin_daily_limit": "Maximum number of automatic re-logins per day; once reached, the next attempt waits until 00:00 the following day. Default: 6.",
+          "rescan_devices": "When checked and saved, this reload re-fetches devices from the cloud so newly added devices are admitted. The option is not persisted and applies to this reload only."
+        }
+      },
+      "device": {
+        "title": "Select a device",
+        "description": "Choose the device whose feature overrides you want to edit. Each device is stored separately.",
+        "data": {
+          "device_did": "Device"
+        },
+        "data_description": {
+          "device_did": "Only devices already admitted to Home Assistant are listed."
+        }
+      },
+      "device_detail": {
+        "title": "Feature overrides",
+        "description": "Checked features create entities on \"{device}\"; unchecked ones do not. This only affects that device. The integration reloads after saving.",
+        "data": {
+          "device_features": "Enabled features"
+        },
+        "data_description": {
+          "device_features": "Pre-checked to match what is currently active: check to enable, uncheck to disable. Features you do not touch keep following the capability table automatically."
+        }
+      }
+    },
+    "abort": {
+      "not_loaded": "The integration is not initialized yet, so the device list is unavailable. Please try again once it has loaded.",
+      "device_gone": "The selected device is no longer available. Please go back and choose again.",
+      "no_features": "Feature overrides are not supported for this device's category."
+    }
+  }
+}
